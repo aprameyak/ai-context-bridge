@@ -1,5 +1,37 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'extract') {
+  if (request.action === 'applyMode') {
+    try {
+      const modePrompt = request.prompt;
+      const textareas = document.querySelectorAll('textarea, [contenteditable="true"]');
+      let injected = false;
+
+      for (let textarea of textareas) {
+        if (textarea.offsetParent !== null && textarea.innerText?.length < 100) {
+          const fullPrompt = `${modePrompt}\n\n---\n\nPlease keep this behavior mode active for our conversation.`;
+
+          if (textarea.tagName === 'TEXTAREA') {
+            textarea.value = fullPrompt;
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+          } else {
+            textarea.innerText = fullPrompt;
+            textarea.textContent = fullPrompt;
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+
+          injected = true;
+          break;
+        }
+      }
+
+      if (injected) {
+        sendResponse({ success: true, message: 'Mode injected into ChatGPT' });
+      } else {
+        throw new Error('Could not find input field');
+      }
+    } catch (err) {
+      sendResponse({ success: false, error: err.message });
+    }
+  } else if (request.action === 'extract') {
     try {
       const messages = [];
       

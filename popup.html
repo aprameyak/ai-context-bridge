@@ -171,16 +171,32 @@
       <div class="status-value" id="provider">Detecting...</div>
     </div>
     
+    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+      <div class="status-label">Behavior Mode</div>
+      <select id="modeSelect" style="width: 100%; padding: 8px; margin-top: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+        <option value="normal">Normal (No modification)</option>
+        <option value="terse">Be Terse - No fluff, straight answers</option>
+        <option value="honest">Be Honest - Admit uncertainty, don't guess</option>
+        <option value="direct">Be Direct - Answer only what I ask</option>
+        <option value="noflat">Stop Flattery - Cut the excessive praise</option>
+        <option value="challenge">Challenge Me - Find flaws in my thinking</option>
+        <option value="risks">Risk-First - Lead with downsides</option>
+        <option value="assume">Make Assumptions - Don't ask endless questions</option>
+      </select>
+    </div>
+
     <button class="button button-primary" id="extractBtn" disabled>
       Extract Conversation
     </button>
-    
+
+    <button class="button button-secondary" id="applyModeBtn" disabled style="background: #fff8e1; border: 1px solid #fbbf24; color: #92400e;">
+      Apply Mode to This Chat
+    </button>
+
     <div class="info">
-      <strong>How to use:</strong><br>
-      1. Open your AI chat<br>
-      2. Click "Extract Conversation"<br>
-      3. Switch to another provider<br>
-      4. Paste the context and continue
+      <strong>Two ways to use:</strong><br>
+      <strong style="color: #555;">Transfer + Mode:</strong> Extract → Switch provider → Paste<br>
+      <strong style="color: #555;">Apply Mode:</strong> Change AI behavior in current chat instantly
     </div>
     
     <div class="conversation-preview" id="preview" style="display: none;"></div>
