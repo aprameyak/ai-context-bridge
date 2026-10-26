@@ -1,70 +1,64 @@
 # AI Context Bridge
 
-A Chrome extension that seamlessly transfers conversations between AI chat providers (ChatGPT, Claude, Gemini, and more).
+A Chrome extension that copies the visible conversation from an AI chat page (ChatGPT, Claude, Gemini, Perplexity, DeepSeek) to your clipboard as Markdown, so you can paste it into a different provider and continue there.
+
+Clicking "Extract Conversation" on a ChatGPT tab copies text in this shape:
+
+```markdown
+# Conversation from ChatGPT
+
+<first message>
+
+---
+
+<second message>
+
+---
+
+*Extracted on 10/26/2026, 3:14:07 PM*
+```
 
 ## Features
 
-- **One-click extraction** of conversations from any supported AI chat
-- **Clean Markdown formatting** for easy reading and sharing
-- **Automatic clipboard copy** for quick pasting to other providers
-- **Support for multiple providers**: ChatGPT, Claude, Gemini, Perplexity, DeepSeek
-- **No data stored** — everything stays local and private
+- Detects the provider from the active tab's URL and enables the popup buttons only on supported sites.
+- Extracts message text from the page DOM and copies it to the clipboard as Markdown, with a short preview in the popup.
+- Optional behavior modes (Terse, Honest, Direct, Stop Flattery, Challenge Me, Risk-First, Make Assumptions). The selected mode's instruction text is prepended to the copied conversation, or "Apply Mode to This Chat" writes it into the current page's input box.
+- No network requests and no server: extraction and copying happen in the browser.
 
-## Installation
+## Getting started
 
-1. Clone or download this repository
-2. Open Chrome and go to `chrome://extensions/`
-3. Enable "Developer mode" (top right)
-4. Click "Load unpacked" and select this folder
-5. The extension icon appears in your toolbar
+The repo does not include the icon PNGs that `manifest.json` references, and Chrome will refuse to load the extension without them. Generate them first with ImageMagick:
 
-## Usage
+```bash
+git clone https://github.com/aprameyak/ai-context-bridge.git
+cd ai-context-bridge
+bash icons/create_icons.sh
+```
 
-1. Open any supported AI chat (ChatGPT, Claude, Gemini)
-2. Click the "AI Context Bridge" extension icon
-3. Click "Extract Conversation"
-4. The conversation is copied to your clipboard
-5. Switch to another AI provider
-6. Paste the context and continue the conversation
+Then load it:
 
-## Supported Providers
+1. Open `chrome://extensions/` and turn on Developer mode.
+2. Click "Load unpacked" and select the repo folder.
+3. Open a supported chat, click the extension icon, and click "Extract Conversation".
 
-- ChatGPT (chat.openai.com, chatgpt.com)
-- Claude (claude.ai)
-- Google Gemini (gemini.google.com)
-- Perplexity AI
-- DeepSeek
+There is no build step, package manager, or test suite.
 
-## Privacy
+## How it works
 
-All extraction happens locally in your browser. No data is sent to external servers. The extension only reads visible text from the webpage you're on.
-
-## How It Works
-
-The extension uses content scripts to:
-1. Detect the current AI provider
-2. Find conversation messages in the DOM
-3. Format them as Markdown
-4. Copy to clipboard
+- `manifest.json` (Manifest V3) registers one content script per provider in `content/` and limits host permissions to those sites.
+- `popup.html` and `popup.js` detect the provider, send an `extract` or `applyMode` message to the content script in the active tab, and write the result to the clipboard. The behavior mode prompts are defined in `popup.js`.
+- Each `content/*.js` file finds messages with provider-specific selectors (for example `[data-message-id]` on ChatGPT) and falls back to broader class-name matches.
+- `background.js` is a minimal service worker that only logs.
 
 ## Limitations
 
-- Only extracts visible messages (conversation must be fully loaded)
-- Formatting depends on how each provider structures their DOM
-- Works best with recent conversations
-
-## Future Improvements
-
-- [ ] Storage of conversation history
-- [ ] Custom formatting options
-- [ ] Automatic provider detection and switching
-- [ ] Sync across devices
-- [ ] Support for more providers
-
-## License
-
-MIT
+- Selectors are tied to each site's current markup and break when a provider changes its DOM. Only messages already rendered on the page are captured.
+- The DeepSeek and Perplexity scripts match only `https://www.deepseek.com/*` and `https://www.perplexity.ai/*`. DeepSeek's chat app runs on `chat.deepseek.com`, so extraction there will not work until the manifest is updated.
 
 ## Contributing
 
-Found an issue or have a suggestion? Please open an issue on GitHub.
+Issues and pull requests are welcome. Test changes by reloading the unpacked extension on each provider you touched.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
